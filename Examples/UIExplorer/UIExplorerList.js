@@ -26,9 +26,11 @@ var {
   TouchableHighlight,
   View,
 } = React;
-var NavigatorExample = require('./Navigator/NavigatorExample');
 
 var { TestModule } = React.addons;
+var Settings = require('Settings');
+
+import type { Example, ExampleModule } from 'ExampleTypes';
 
 var createExamplePage = require('./createExamplePage');
 
@@ -39,10 +41,12 @@ var COMPONENTS = [
   require('./ListViewExample'),
   require('./ListViewPagingExample'),
   require('./MapViewExample'),
-  NavigatorExample,
+  require('./Navigator/NavigatorExample'),
+  require('./NavigatorIOSColorsExample'),
   require('./NavigatorIOSExample'),
   require('./PickerIOSExample'),
   require('./ScrollViewExample'),
+  require('./SegmentedControlIOSExample'),
   require('./SliderIOSExample'),
   require('./SwitchIOSExample'),
   require('./TabBarIOSExample'),
@@ -62,6 +66,7 @@ var APIS = [
   require('./BorderExample'),
   require('./CameraRollExample.ios'),
   require('./GeolocationExample'),
+  require('./LayoutEventsExample'),
   require('./LayoutExample'),
   require('./NetInfoExample'),
   require('./PanResponderExample'),
@@ -104,16 +109,29 @@ COMPONENTS.concat(APIS).forEach((Example) => {
   }
 });
 
-class UIExplorerList extends React.Component {
+type Props = {
+  navigator: Array<{title: string, component: ReactClass<any,any,any>}>,
+  onExternalExampleRequested: Function,
+};
 
-  constructor(props) {
+
+
+class UIExplorerList extends React.Component {
+  props: Props;
+
+  constructor(props: Props) {
     super(props);
     this.state = {
       dataSource: ds.cloneWithRowsAndSections({
         components: COMPONENTS,
         apis: APIS,
       }),
+      searchText: Settings.get('searchText'),
     };
+  }
+
+  componentDidMount() {
+    this._search(this.state.searchText);
   }
 
   render() {
@@ -127,6 +145,7 @@ class UIExplorerList extends React.Component {
             onChangeText={this._search.bind(this)}
             placeholder="Search..."
             style={styles.searchTextInput}
+            value={this.state.searchText}
           />
         </View>
         <ListView
@@ -140,7 +159,7 @@ class UIExplorerList extends React.Component {
     );
   }
 
-  _renderSectionHeader(data, section) {
+  _renderSectionHeader(data: any, section: string) {
     return (
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionHeaderTitle}>
@@ -150,7 +169,7 @@ class UIExplorerList extends React.Component {
     );
   }
 
-  _renderRow(example, i) {
+  _renderRow(example: ExampleModule, i: number) {
     return (
       <View key={i}>
         <TouchableHighlight onPress={() => this._onPressRow(example)}>
@@ -168,7 +187,7 @@ class UIExplorerList extends React.Component {
     );
   }
 
-  _search(text) {
+  _search(text: mixed) {
     var regex = new RegExp(text, 'i');
     var filter = (component) => regex.test(component.title);
 
@@ -176,15 +195,15 @@ class UIExplorerList extends React.Component {
       dataSource: ds.cloneWithRowsAndSections({
         components: COMPONENTS.filter(filter),
         apis: APIS.filter(filter),
-      })
+      }),
+      searchText: text,
     });
+    Settings.set({searchText: text});
   }
 
-  _onPressRow(example) {
-    if (example === NavigatorExample) {
-      this.props.onExternalExampleRequested(
-        NavigatorExample
-      );
+  _onPressRow(example: ExampleModule) {
+    if (example.external) {
+      this.props.onExternalExampleRequested(example);
       return;
     }
     var Component = makeRenderable(example);

@@ -176,7 +176,7 @@ RCT_EXPORT_MODULE();
 // Available as NativeModules.MyCustomModule.processString
 RCT_EXPORT_METHOD(processString:(NSString *)input callback:(RCTResponseSenderBlock)callback)
 {
-  callback(@[[input stringByReplacingOccurrencesOfString:@"Goodbye" withString:@"Hello"];]]);
+  callback(@[[input stringByReplacingOccurrencesOfString:@"Goodbye" withString:@"Hello"]]);
 }
 @end`}
           </Prism>
@@ -226,10 +226,20 @@ RCT_EXPORT_VIEW_PROPERTY(myCustomProperty);
           <Prism>
 {`// JavaScript
 
-module.exports = createReactIOSNativeComponentClass({
-  validAttributes: { myCustomProperty: true },
-  uiViewClassName: 'MyCustomView',
-});`}
+var React = require('react-native');
+var { requireNativeComponent } = React;
+
+class MyCustomView extends React.Component {
+  render() {
+    return <NativeMyCustomView {...this.props} />;
+  }
+}
+MyCustomView.propTypes = {
+  myCustomProperty: React.PropTypes.oneOf(['a', 'b']),
+};
+
+var NativeMyCustomView = requireNativeComponent('MyCustomView', MyCustomView);
+module.exports = MyCustomView;`}
           </Prism>
           </div>
           <section className="home-bottom-section">

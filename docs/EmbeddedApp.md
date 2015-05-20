@@ -45,7 +45,7 @@ First, create a directory for your app’s React code and create a simple `index
 
 ```
 $ mkdir ReactComponent
-$ touch index.ios.js
+$ touch ReactComponent/index.ios.js
 ```
 
 Copy & paste following starter code for `index.ios.js` – it’s a barebones React Native app:
@@ -111,7 +111,7 @@ Here I disabled **AutoLayout** for simplicity. In real production world, you sho
 
 ## Add RCTRootView To Container View
 
-Ready for the most interesting part? Now we shall create the `RCTRootView`, where your React Native app lives in.
+Ready for the most interesting part? Now we shall create the `RCTRootView`, where your React Native app lives.
 
 In `ReactView.m`, we need to first initiate `RCTRootView` with the URI of your `index.ios.bundle`. `index.ios.bundle` will be created by packager and served by React Native server, which will be discussed later on.
 

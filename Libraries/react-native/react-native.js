@@ -27,6 +27,7 @@ var ReactNative = Object.assign(Object.create(require('React')), {
   NavigatorIOS: require('NavigatorIOS'),
   PickerIOS: require('PickerIOS'),
   Navigator: require('Navigator'),
+  SegmentedControlIOS: require('SegmentedControlIOS'),
   ScrollView: require('ScrollView'),
   SliderIOS: require('SliderIOS'),
   SwitchIOS: require('SwitchIOS'),
@@ -58,7 +59,9 @@ var ReactNative = Object.assign(Object.create(require('React')), {
 
   // Plugins
   DeviceEventEmitter: require('RCTDeviceEventEmitter'),
+  NativeAppEventEmitter: require('RCTNativeAppEventEmitter'),
   NativeModules: require('NativeModules'),
+  requireNativeComponent: require('requireNativeComponent'),
 
   addons: {
     LinkedStateMixin: require('LinkedStateMixin'),

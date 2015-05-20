@@ -11,7 +11,7 @@
 
 #import "RCTBridge.h"
 
-@interface RCTRootView : UIView <RCTInvalidating>
+@interface RCTRootView : UIView
 
 /**
  * - Designated initializer -
@@ -56,12 +56,6 @@
  * Changes will take effect next time the bundle is reloaded.
  */
 @property (nonatomic, strong) Class executorClass;
-
-/**
- * If YES will watch for shake gestures and show development menu
- * with options like "Reload", "Enable Debugging", etc.
- */
-@property (nonatomic, assign) BOOL enableDevMenu;
 
 /**
  * The backing view controller of the root view.

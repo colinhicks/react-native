@@ -59,23 +59,21 @@
   return NO;
 }
 
-// Make sure this test runs first (underscores sort early) otherwise the
-// other tests will tear out the rootView
-- (void)test__RootViewLoadsAndRenders
+// Make sure this test runs first because the other tests will tear out the rootView
+- (void)testAAA_RootViewLoadsAndRenders
 {
-  UIViewController *vc = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
+  UIViewController *vc = [UIApplication sharedApplication].delegate.window.rootViewController;
   RCTAssert([vc.view isKindOfClass:[RCTRootView class]], @"This test must run first.");
   NSDate *date = [NSDate dateWithTimeIntervalSinceNow:TIMEOUT_SECONDS];
   BOOL foundElement = NO;
   NSString *redboxError = nil;
 
   while ([date timeIntervalSinceNow] > 0 && !foundElement && !redboxError) {
-    [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode beforeDate:date];
-    [[NSRunLoop mainRunLoop] runMode:NSRunLoopCommonModes beforeDate:date];
+    [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    [[NSRunLoop mainRunLoop] runMode:NSRunLoopCommonModes beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
 
     redboxError = [[RCTRedBox sharedInstance] currentErrorMessage];
-
-    foundElement = [self findSubviewInView:vc.view matching:^BOOL(UIView *view) {
+    foundElement = [self findSubviewInView:vc.view matching:^(UIView *view) {
       if ([view respondsToSelector:@selector(attributedText)]) {
         NSString *text = [(id)view attributedText].string;
         if ([text isEqualToString:@"<View>"]) {
@@ -90,36 +88,21 @@
   XCTAssertTrue(foundElement, @"Cound't find element with '<View>' text in %d seconds", TIMEOUT_SECONDS);
 }
 
-- (void)testViewExampleSnapshot
-{
-  [_runner runTest:_cmd module:@"ViewExample"];
+#define RCT_SNAPSHOT_TEST(name, reRecord) \
+- (void)test##name##Snapshot              \
+{                                         \
+  _runner.recordMode |= reRecord;         \
+  [_runner runTest:_cmd module:@#name];   \
 }
 
-- (void)testLayoutExampleSnapshot
-{
-  [_runner runTest:_cmd module:@"LayoutExample"];
-}
+RCT_SNAPSHOT_TEST(ViewExample, NO)
+RCT_SNAPSHOT_TEST(LayoutExample, NO)
+RCT_SNAPSHOT_TEST(TextExample, NO)
+RCT_SNAPSHOT_TEST(SwitchExample, NO)
+RCT_SNAPSHOT_TEST(SliderExample, NO)
+RCT_SNAPSHOT_TEST(TabBarExample, NO)
 
-- (void)testTextExampleSnapshot
-{
-  [_runner runTest:_cmd module:@"TextExample"];
-}
-
-- (void)testSwitchExampleSnapshot
-{
-  [_runner runTest:_cmd module:@"SwitchExample"];
-}
-
-- (void)testSliderExampleSnapshot
-{
-  [_runner runTest:_cmd module:@"SliderExample"];
-}
-
-- (void)testTabBarExampleSnapshot
-{
-  [_runner runTest:_cmd module:@"TabBarExample"];
-}
-
+// Make sure this test runs last
 - (void)testZZZ_NotInRecordMode
 {
   RCTAssert(_runner.recordMode == NO, @"Don't forget to turn record mode back to NO before commit.");

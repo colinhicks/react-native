@@ -10,6 +10,7 @@
 #import <UIKit/UIKit.h>
 
 #import "RCTBridgeModule.h"
+#import "RCTDefines.h"
 #import "RCTFrameUpdate.h"
 #import "RCTInvalidating.h"
 #import "RCTJavaScriptExecutor.h"
@@ -28,6 +29,11 @@ extern NSString *const RCTReloadNotification;
 extern NSString *const RCTJavaScriptDidLoadNotification;
 
 /**
+ * This notification fires when the bridge failed to load.
+ */
+extern NSString *const RCTJavaScriptDidFailToLoadNotification;
+
+/**
  * This block can be used to instantiate modules that require additional
  * init parameters, or additional configuration prior to being used.
  * The bridge will call this block to instatiate the modules, and will
@@ -40,7 +46,7 @@ typedef NSArray *(^RCTBridgeModuleProviderBlock)(void);
 /**
  * This function returns the module name for a given class.
  */
-extern NSString *RCTBridgeModuleNameForClass(Class bridgeModuleClass);
+RCT_EXTERN NSString *RCTBridgeModuleNameForClass(Class bridgeModuleClass);
 
 /**
  * Async batched bridge used to communicate with the JavaScript application.
@@ -62,9 +68,9 @@ extern NSString *RCTBridgeModuleNameForClass(Class bridgeModuleClass);
 /**
  * This method is used to call functions in the JavaScript application context.
  * It is primarily intended for use by modules that require two-way communication
- * with the JavaScript code. Method should be regsitered using the
+ * with the JavaScript code. Method should be registered using the
  * RCT_IMPORT_METHOD macro below. Attempting to call a method that has not been
- * registered will result in an error.
+ * registered will result in an error. Safe to call from any thread.
  */
 - (void)enqueueJSCall:(NSString *)moduleDotMethod args:(NSArray *)args;
 
@@ -80,13 +86,9 @@ __attribute__((used, section("__DATA,RCTImport"))) \
 static const char *__rct_import_##module##_##method##__ = #module"."#method;
 
 /**
- * This method is used to execute a new application script. It is called
- * internally whenever a JS application bundle is loaded/reloaded, but should
- * probably not be used at any other time.
+ * URL of the script that was loaded into the bridge.
  */
-- (void)enqueueApplicationScript:(NSString *)script
-                             url:(NSURL *)url
-                      onComplete:(RCTJavaScriptCompleteBlock)onComplete;
+@property (nonatomic, copy) NSURL *bundleURL;
 
 @property (nonatomic, strong) Class executorClass;
 
@@ -102,13 +104,6 @@ static const char *__rct_import_##module##_##method##__ = #module"."#method;
 @property (nonatomic, copy, readonly) NSDictionary *modules;
 
 /**
- * The shadow queue is used to execute callbacks from the JavaScript code. All
- * native hooks (e.g. exported module methods) will be executed on the shadow
- * queue.
- */
-@property (nonatomic, readonly) dispatch_queue_t shadowQueue;
-
-/**
  * The launch options that were used to initialize the bridge.
  */
 @property (nonatomic, copy, readonly) NSDictionary *launchOptions;
@@ -119,18 +114,8 @@ static const char *__rct_import_##module##_##method##__ = #module"."#method;
 @property (nonatomic, readonly, getter=isLoading) BOOL loading;
 
 /**
- * Reload the bundle and reset executor and modules.
+ * Reload the bundle and reset executor & modules. Safe to call from any thread.
  */
 - (void)reload;
-
-/**
- * Add a new observer that will be called on every screen refresh
- */
-- (void)addFrameUpdateObserver:(id<RCTFrameUpdateObserver>)observer;
-
-/**
- * Stop receiving screen refresh updates for the given observer
- */
-- (void)removeFrameUpdateObserver:(id<RCTFrameUpdateObserver>)observer;
 
 @end
