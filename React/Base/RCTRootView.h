@@ -11,6 +11,8 @@
 
 #import "RCTBridge.h"
 
+extern NSString *const RCTContentDidAppearNotification;
+
 @interface RCTRootView : UIView
 
 /**
@@ -66,5 +68,19 @@
  * The React-managed contents view of the root view.
  */
 @property (nonatomic, strong, readonly) UIView *contentView;
+
+/**
+ * A view to display while the JavaScript is loading, so users aren't presented
+ * with a blank screen. By default this is nil, but you can override it with
+ * (for example) a UIActivityIndicatorView or a placeholder image.
+ */
+@property (nonatomic, strong) UIView *loadingView;
+
+/**
+ * Timings for hiding the loading view after the content has loaded. Both of
+ * these values default to 0.25 seconds.
+ */
+@property (nonatomic, assign) NSTimeInterval loadingViewFadeDelay;
+@property (nonatomic, assign) NSTimeInterval loadingViewFadeDuration;
 
 @end
